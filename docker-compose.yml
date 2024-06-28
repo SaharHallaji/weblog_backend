@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo
+    container_name: gnn_mongo
+    restart: on-failure
+    volumes:
+      - gnn_mongo:/data/db
+    networks:
+      - gnn_network
+
+  mongo_dash:
+    container_name: gnn_mongo_dash
+    restart: on-failure
+    image: mongo-express
+    ports:
+      - "8002:8002"
+    networks:
+      - gnn_network
+    environment:
+      - PORT=8002
+      - ME_CONFIG_OPTIONS_EDITORTHEME=ambiance
+      - ME_CONFIG_BASICAUTH_USERNAME=sahar_hallaji
+      - ME_CONFIG_BASICAUTH_PASSWORD=1234
+      - ME_CONFIG_MONGODB_URL=mongodb://gnn_mongo:27017
+    depends_on:
+      - mongo
+
+  backend:
+    container_name: backend
+    restart: on-failure
+    build: ./
+    ports:
+      - "8080:8080"
+    networks:
+      - gnn_network
+    volumes:
+      - ./:/app
+    depends_on:
+      - mongo
+      - mongo_dash
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 14s
+      retries: 5
+
+networks:
+  gnn_network:
+    name: gnn_network
+
+volumes:
+  gnn_mongo:
+    external: true
