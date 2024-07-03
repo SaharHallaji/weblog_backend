@@ -16,7 +16,7 @@ export class Post {
     @Prop()
     image?: string
 
-    @Prop({ required: true })
+    @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
     author: User | Types.ObjectId | string
 
     @Prop({ required: true })
