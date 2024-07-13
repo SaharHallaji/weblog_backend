@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
+import {NestFactory} from '@nestjs/core'
+import {AppModule} from './app.module'
 import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger"
 import * as fs from "fs"
 import env from './config/env'
@@ -10,7 +10,15 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule)
 
     // Helmet security setup
-    app.use(helmet())
+    app.use(helmet.contentSecurityPolicy({
+        // TODO: remove it when you have finished developing the app for security reasons.
+            directives: {
+                defaultSrc: ["'self'"],
+                imgSrc: ["'self'", "data:", "https://cdn.jsdelivr.net", "http://cdn.jsdelivr.net"],
+                scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+            },
+        })
+    );
 
 
     // Config Swagger
@@ -35,4 +43,4 @@ async function bootstrap() {
     await app.listen(env().PORT, '0.0.0.0')
 }
 
-bootstrap()
+bootstrap().then(() => '')
